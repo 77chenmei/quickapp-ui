@@ -10,15 +10,24 @@
     "build": "hap build",
     "release": "hap release",
     "server": "hap server",
-    "watch": "hap watch"
+    "watch": "hap watch",
+    "dev": "concurrently \"npm run server\" \"npm run watch\""
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-proposal-decorators": "^7.7.4",
     "babel-eslint": "^10.0.1",
     "commitizen": "^4.0.3",
+    "cross-env": "^6.0.3",
     "cz-conventional-changelog": "^3.0.2",
     "cz-customizable": "^6.2.0",
     "eslint": "^5.12.1",
     "eslint-plugin-hybrid": "0.0.5",
-    "hap-toolkit": "^0.6.6"
+    "hap-toolkit": "^0.6.6",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0"
+  },
+  "dependencies": {
+    "concurrently": "^5.0.2"
   }
 }

@@ -1,0 +1,135 @@
+<template>
+        <stack class="wrap" style="{{style}}">
+                <canvas id="canvas"></canvas>
+                <div class="slot">
+                        <slot></slot>
+                </div>
+        </stack>
+</template>
+
+<script>
+        const toAngle = degree => (degree / 180) * Math.PI; // 转弧度
+        const percentToAngle = percent => toAngle( (percent / 100) * 360 ); // 百分比转弧度
+
+        export default {
+                data(){
+                        return {
+                                size:400,
+                                color:'#ff4400',
+                                strokeWidth:20,
+                                ctx:null,
+                                anticlockwise:false,
+                                startAngle:-90 ,
+                                percent: 80,
+                                hasBack:true,
+                                circleFull: 2* Math.PI
+                        }
+                },
+                onInit(){
+                        setTimeout(() => {
+                                const canvas = this.$element("canvas");
+                                this.ctx = canvas.getContext("2d");
+                                this.draw();
+                        }, 0);
+                },
+                computed:{
+                        /** 计算样式 */
+                        style(){
+                                return `width:${this.size}px;height:${this.size}px;`
+                        },
+                        /** 进度开始位置 */
+                        beginAngle(){  
+                                const angle = toAngle(this.startAngle);
+                                return this.anticlockwise ? this.circleFull - angle : angle;
+                        },
+                        /** 进度结束位置 */
+                        endAngle(){
+                                const angle =  this.beginAngle +  percentToAngle(this.percent);
+                                return  this.anticlockwise ? this.circleFull - angle : angle;
+                        }
+                },
+                draw(){
+                        const {
+                                beginAngle,
+                                endAngle,
+                                anticlockwise,
+                                strokeWidth,
+                                size,
+                                ctx,
+                                hasBack,
+                                circleFull
+                        } = this;
+
+                        const position = size / 2;   // 获取圆心
+                        const radius =  position - strokeWidth/2;
+                        const step = (endAngle - beginAngle) / 100;  /** step 每步增加值 */
+                        let [currentAngle,count] = [beginAngle,0];
+
+                        
+
+                        function drawBackground(){
+                                if(hasBack){
+                                        ctx.beginPath();
+                                        ctx.arc(position, position, radius, 0, 2 * Math.PI, true);
+                                        ctx.lineWidth = strokeWidth;
+                                        ctx.strokeStyle ="#eaeef2";
+                                        ctx.stroke();
+                                }      
+                        }
+                
+                        (function startDraw(){
+                                currentAngle += step;
+                                      if (!anticlockwise && currentAngle <= beginAngle) {
+                                                currentAngle = beginAngle;
+                                        }
+                                        if (!anticlockwise && currentAngle >= 2 * Math.PI + beginAngle) {
+                                                currentAngle = 2 * Math.PI + beginAngle;
+                                        }
+                                        if (anticlockwise && currentAngle <= beginAngle - 2 * Math.PI) {
+                                                currentAngle = beginAngle - 2 * Math.PI;
+                                        }
+                                        if (anticlockwise && currentAngle >= beginAngle) {
+                                                currentAngle = beginAngle;
+                                        }
+
+                                // ctx.clearRect(0, 0, size, size);
+
+
+                                drawBackground()
+                                drawCircle()
+
+                                if(count >= 100) return
+                               
+                               count ++;
+                                setTimeout(()=>{
+                                  startDraw()
+                                },5)
+                        })()
+
+                        
+                        function drawCircle(){
+                                ctx.beginPath();
+                                ctx.arc(
+                                        position,
+                                        position,
+                                        radius,
+                                        beginAngle,
+                                        currentAngle,
+                                        anticlockwise
+                                );
+                                ctx.lineWidth = strokeWidth;
+                                ctx.strokeStyle = '#2d8cf0';
+                                ctx.lineCap = "round";
+                                ctx.stroke();
+                        }
+                },
+     
+            
+        }
+</script>
+
+<style lang="less">
+        .wrap{
+                border:1px solid red;
+        }
+</style>
